@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name            weibo ip location
+// @name            weibo ip region
 // @version         1.0
 // @author          NiaoBlush
 // @license         MIT
@@ -11,59 +11,58 @@
 (function () {
     "use strict";
 
-    const getLocation = (uid) => {
+    function getRegion(uid) {
         return new Promise((resolve, reject) => {
-            setTimeout(function () {
-                $.get(`https://weibo.com/ajax/profile/info?uid=${uid}`, function (res) {
-                    if (res.data && res.data.user && res.data.user.location) {
-                        resolve(res.data.user.location)
+            $.get(`https://weibo.com/ajax/profile/detail?uid=${uid}`, function (res) {
+                if (res.data && res.data.region) {
+                    const regionFull = res.data.region;
+                    console.debug("regionFull", regionFull);
+                    const array = /IP属地：(.+)/.exec(regionFull);
+                    if (array != null) {
+                        resolve(array[1]);
                     } else {
                         resolve("")
                     }
-                })
-            }, 500)
+                } else {
+                    resolve("")
+                }
+            })
         })
     }
 
-    const mark = (jObj, location) => {
-        // jObj.css("border", "solid 2px red");
-        jObj.append(`<span style="background-color: red;color: #FFF;margin-left: 5px;font-weight: bold;border-radius: 8px;padding: 2px 5px;">${location}</span>`)
+    const district = ["北京", "天津", "河北", "山西", "内蒙古", "辽宁", "吉林", "黑龙江", "上海", "江苏", "浙江", "安徽", "福建", "江西", "山东", "河南", "湖北", "湖南", "广东", "广西", "海南", "重庆", "四川", "贵州", "云南", "西藏", "陕西", "甘肃", "青海", "宁夏", "新疆", "台湾", "中国香港", "澳门"];
+
+    const mark = (jObj, region) => {
+        if (!region) {
+            return;
+        }
+        const foreign = region && district.indexOf(region) === -1
+
+        jObj.append(`<span style="background-color: ${foreign ? "red" : "#00d0ff"};color: #FFF;margin-left: 5px;font-weight: bold;border-radius: 8px;padding: 2px 5px;">${region}</span>`)
     }
 
-    console.log("hello");
-    console.log("$.fn.jquery", $.fn.jquery);
+    console.log("[weibo ip region] $.fn.jquery", $.fn.jquery);
 
-    const locationMap = {}
+    const regionMap = {}
 
-    //先暂时这样 跳过载入完成的判断
-    setTimeout(function () {
-        const list = $("a.ALink_default_2ibt1:not([aria-label])")
-        list.each(function () {
+    $("[class^='Home_feed']").bind("DOMNodeInserted", function (e) {
+        const ele = $(e.target)
+        const list = ele.find("a[class^='ALink_default']:not([aria-label])")
+        list.each(async function () {
             const href = $(this).attr("href");
             const array = /\/u\/(\d+)/.exec(href)
             if (array != null) {
                 const uid = array[1];
-                if (!locationMap[uid]) {
-                    locationMap[uid] = "pending"
-                    getLocation(uid)
-                        .then(l => {
-                            locationMap[uid] = l;
-                            console.log("l", l);
-                            if (l.startsWith("海外")) {
-                                mark($(this), l)
-                            }
-                        })
-                } else {
-
+                let region = regionMap[uid]
+                if (region === undefined) {
+                    region = await getRegion(uid);
+                    regionMap[uid] = region;
                 }
-                // console.log("uid", uid);
+                mark($(this), region)
             }
-            // console.log("href", href);
         })
-        // const list=$("a")
-        // console.log("list a", list);
-    }, 1500)
-
+        // console.info("regionMap", regionMap);
+    })
 
 })();
 
