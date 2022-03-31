@@ -1,11 +1,19 @@
 // ==UserScript==
-// @name            weibo ip region
-// @version         1.0
-// @author          NiaoBlush
-// @license         MIT
-// @grant           none
-// @include         https://weibo.com/*
-// @require         https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.min.js
+// @name                weibo ip location
+// @name:zh             微博ip属地显示助手
+// @name:zh-CN          微博ip属地显示助手
+// @description         Display Sina Weibo ip location
+// @description:zh      新浪微博显示用户ip属地
+// @description:zh-CN   新浪微博显示用户ip属地
+// @version             1.0
+// @author              NiaoBlush
+// @license             GPL
+// @namespace           https://github.com/NiaoBlush/weibo-ip-location
+// @homepageURL         https://github.com/NiaoBlush/weibo-ip-location
+// @supportURL          https://github.com/NiaoBlush/weibo-ip-location/issues
+// @grant               none
+// @include             https://weibo.com/*
+// @require             https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.min.js
 
 
 (function () {
