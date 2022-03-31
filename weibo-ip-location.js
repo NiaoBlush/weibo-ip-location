@@ -1,8 +1,8 @@
 // ==UserScript==
-// @name                weibo ip location
+// @name                微博ip属地显示助手
 // @name:zh             微博ip属地显示助手
 // @name:zh-CN          微博ip属地显示助手
-// @description         Display Sina Weibo ip location
+// @description         新浪微博显示用户ip属地
 // @description:zh      新浪微博显示用户ip属地
 // @description:zh-CN   新浪微博显示用户ip属地
 // @version             1.0
