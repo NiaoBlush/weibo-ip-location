@@ -14,8 +14,8 @@
     function getRegion(uid) {
         return new Promise((resolve, reject) => {
             $.get(`https://weibo.com/ajax/profile/detail?uid=${uid}`, function (res) {
-                if (res.data && res.data.region) {
-                    const regionFull = res.data.region;
+                if (res.data && res.data.ip_location) {
+                    const regionFull = res.data.ip_location;
                     console.debug("regionFull", regionFull);
                     const array = /IP属地：(.+)/.exec(regionFull);
                     if (array != null) {
@@ -61,7 +61,7 @@
                 mark($(this), region)
             }
         })
-        // console.info("regionMap", regionMap);
+        // console.log("regionMap", regionMap);
     })
 
 })();
