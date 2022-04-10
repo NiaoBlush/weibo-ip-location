@@ -5,7 +5,7 @@
 // @description         新浪微博显示用户ip属地
 // @description:zh      新浪微博显示用户ip属地
 // @description:zh-CN   新浪微博显示用户ip属地
-// @version             1.0
+// @version             1.1
 // @author              NiaoBlush
 // @license             GPL
 // @namespace           https://github.com/NiaoBlush/weibo-ip-location
