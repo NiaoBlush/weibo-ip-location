@@ -5,14 +5,14 @@
 // @description         新浪微博显示用户ip属地
 // @description:zh      新浪微博显示用户ip属地
 // @description:zh-CN   新浪微博显示用户ip属地
-// @version             1.1
+// @version             1.2
 // @author              NiaoBlush
 // @license             GPL
 // @namespace           https://github.com/NiaoBlush/weibo-ip-location
 // @homepageURL         https://github.com/NiaoBlush/weibo-ip-location
 // @supportURL          https://github.com/NiaoBlush/weibo-ip-location/issues
 // @grant               none
-// @include             https://weibo.com/*
+// @match               https://weibo.com/*
 // @require             https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.min.js
 // ==/UserScript==
 
@@ -25,7 +25,7 @@
             $.get(`https://weibo.com/ajax/profile/detail?uid=${uid}`, function (res) {
                 if (res.data && res.data.ip_location) {
                     const regionFull = res.data.ip_location;
-                    console.debug("regionFull", regionFull);
+                    console.debug("[weibo-ip-location] info", uid, regionFull);
                     const array = /IP属地：(.+)/.exec(regionFull);
                     if (array != null) {
                         resolve(array[1]);
@@ -41,22 +41,40 @@
 
     const district = ["北京", "天津", "河北", "山西", "内蒙古", "辽宁", "吉林", "黑龙江", "上海", "江苏", "浙江", "安徽", "福建", "江西", "山东", "河南", "湖北", "湖南", "广东", "广西", "海南", "重庆", "四川", "贵州", "云南", "西藏", "陕西", "甘肃", "青海", "宁夏", "新疆", "台湾", "中国香港", "澳门"];
 
-    const mark = (jObj, region) => {
-        if (!region) {
+    const mark = ($obj, region) => {
+        const markedClass = "weibo-ip-marked";
+        if (!region || ($obj.hasClass(markedClass))) {
             return;
         }
+        $obj.addClass(markedClass);
         const foreign = region && district.indexOf(region) === -1
 
-        jObj.append(`<span style="background-color: ${foreign ? "red" : "#00d0ff"};color: #FFF;margin-left: 5px;font-weight: bold;border-radius: 8px;padding: 2px 5px;">${region}</span>`)
+        $obj.append(`<span style="background-color: ${foreign ? "red" : "#00d0ff"};color: #FFF;margin-left: 5px;font-weight: bold;border-radius: 8px;padding: 2px 5px;">${region}</span>`)
     }
 
     console.log("[weibo ip region] $.fn.jquery", $.fn.jquery);
 
     const regionMap = {}
 
+    let oldListLoaded = false
+    $(".WB_main").bind("DOMNodeInserted", function (e) {
+        const $e = $(e.target);
+        if ($e.attr("id") === "v6_pl_content_homefeed") {
+            $(".WB_main").unbind();
+            console.log("$e.html()", $e.html());
+            $e.bind("DOMNodeInserted", function (ev) {
+                processList($(ev.target))
+            })
+        }
+    })
+
     $("[class^='Home_feed']").bind("DOMNodeInserted", function (e) {
         const ele = $(e.target)
-        const list = ele.find("a[class^='ALink_default']:not([aria-label])")
+        processList(ele)
+    })
+
+    function processList($ele) {
+        const list = $ele.find("a[class^='ALink_default']:not([aria-label]),.WB_info>a[usercard]")
         list.each(async function () {
             const href = $(this).attr("href");
             const array = /\/u\/(\d+)/.exec(href)
@@ -70,8 +88,7 @@
                 mark($(this), region)
             }
         })
-        // console.log("regionMap", regionMap);
-    })
+    }
 
 })();
 
