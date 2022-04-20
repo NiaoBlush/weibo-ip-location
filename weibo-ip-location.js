@@ -13,6 +13,7 @@
 // @supportURL          https://github.com/NiaoBlush/weibo-ip-location/issues
 // @grant               none
 // @match               https://weibo.com/*
+// @match               https://m.weibo.cn/*
 // @require             https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.min.js
 // ==/UserScript==
 
@@ -49,14 +50,20 @@
         $obj.addClass(markedClass);
         const foreign = region && district.indexOf(region) === -1
 
-        $obj.append(`<span style="background-color: ${foreign ? "red" : "#00d0ff"};color: #FFF;margin-left: 5px;font-weight: bold;border-radius: 8px;padding: 2px 5px;">${region}</span>`)
+        let html;
+        if (foreign) {
+            html = `<span style="background-color: red;color: #FFF;margin-left: 5px;font-weight: bold;border-radius: 8px;padding: 2px 5px;">${region}</span>`;
+        } else {
+            html = `<span style="color: #00d0ff;margin-left: 5px;font-weight: normal;border-radius: 8px;padding: 2px 5px;">(${region})</span>`;
+        }
+        $obj.append(html);
     }
 
     console.log("[weibo ip region] $.fn.jquery", $.fn.jquery);
 
     const regionMap = {}
 
-    let oldListLoaded = false
+    //v6
     $(".WB_main").bind("DOMNodeInserted", function (e) {
         const $e = $(e.target);
         if ($e.attr("id") === "v6_pl_content_homefeed") {
@@ -68,6 +75,7 @@
         }
     })
 
+    //v7
     $("[class^='Home_feed']").bind("DOMNodeInserted", function (e) {
         const ele = $(e.target)
         processList(ele)
@@ -88,6 +96,40 @@
                 mark($(this), region)
             }
         })
+    }
+
+    //mobile
+    if (location.host === "m.weibo.cn") {
+
+        $("#app").bind("DOMNodeInserted", function (appE) {
+            const appChild = $(appE.target)
+            if (appChild.hasClass("main-wrap")) {
+
+                $("#app").unbind("DOMNodeInserted");
+                appChild.bind("DOMNodeInserted", function (mainE) {
+                    console.log($(mainE.target));
+                    const mainChild = $(mainE.target)
+                    if (mainChild.is("div") && mainChild.attr("class") === undefined) {
+                        appChild.unbind("DOMNodeInserted");
+                        processMobileList(mainChild);
+                        $(".pannelwrap").bind("DOMNodeInserted", function (pE) {
+
+                            processMobileList($(pE.target));
+                        })
+                    }
+
+                })
+
+            }
+
+
+        })
+
+        function processMobileList($ele) {
+            $ele.css({
+                border: "1px solid red"
+            })
+        }
     }
 
 })();
