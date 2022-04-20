@@ -5,16 +5,17 @@
 // @description         新浪微博显示用户ip属地
 // @description:zh      新浪微博显示用户ip属地
 // @description:zh-CN   新浪微博显示用户ip属地
-// @version             1.2
+// @version             1.3
 // @author              NiaoBlush
 // @license             GPL
 // @namespace           https://github.com/NiaoBlush/weibo-ip-location
 // @homepageURL         https://github.com/NiaoBlush/weibo-ip-location
 // @supportURL          https://github.com/NiaoBlush/weibo-ip-location/issues
-// @grant               none
 // @match               https://weibo.com/*
 // @match               https://m.weibo.cn/*
 // @require             https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.min.js
+// @grant               GM.xmlHttpRequest
+// @connect             weibo.com
 // ==/UserScript==
 
 
@@ -38,6 +39,30 @@
                 }
             })
         })
+    }
+
+    function getRegionGM(uid) {
+        return new Promise(((resolve, reject) => {
+            GM.xmlHttpRequest({
+                url: `https://weibo.com/ajax/profile/detail?uid=${uid}`,
+                method: "GET",
+                onload: function (xhr) {
+                    const res = JSON.parse(xhr.responseText)
+                    if (res.data && res.data.ip_location) {
+                        const regionFull = res.data.ip_location;
+                        console.debug("[weibo-ip-location] info", uid, regionFull);
+                        const array = /IP属地：(.+)/.exec(regionFull);
+                        if (array != null) {
+                            resolve(array[1]);
+                        } else {
+                            resolve("")
+                        }
+                    } else {
+                        resolve("")
+                    }
+                }
+            });
+        }))
     }
 
     const district = ["北京", "天津", "河北", "山西", "内蒙古", "辽宁", "吉林", "黑龙江", "上海", "江苏", "浙江", "安徽", "福建", "江西", "山东", "河南", "湖北", "湖南", "广东", "广西", "海南", "重庆", "四川", "贵州", "云南", "西藏", "陕西", "甘肃", "青海", "宁夏", "新疆", "台湾", "中国香港", "澳门"];
@@ -107,7 +132,7 @@
 
                 $("#app").unbind("DOMNodeInserted");
                 appChild.bind("DOMNodeInserted", function (mainE) {
-                    console.log($(mainE.target));
+
                     const mainChild = $(mainE.target)
                     if (mainChild.is("div") && mainChild.attr("class") === undefined) {
                         appChild.unbind("DOMNodeInserted");
@@ -122,13 +147,29 @@
 
             }
 
-
         })
 
         function processMobileList($ele) {
-            $ele.css({
-                border: "1px solid red"
+            const list = $ele.find(".weibo-top .m-text-box > a, .weibo-text > span > a:not([data-hide])")
+            list.each(async function () {
+                let $target = $(this);
+
+                const href = $target.attr("href");
+                const array = /\/profile\/(\d+)/.exec(href);
+                if ($(this).parent().hasClass("m-text-box")) {
+                    $target = $target.find("h3").first();
+                }
+                if (array != null) {
+                    const uid = array[1];
+                    let region = regionMap[uid]
+                    if (region === undefined) {
+                        region = await getRegionGM(uid);
+                        regionMap[uid] = region;
+                    }
+                    mark($target, region)
+                }
             })
+
         }
     }
 
