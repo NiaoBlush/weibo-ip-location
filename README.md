@@ -4,6 +4,7 @@
 + [问题反馈](https://github.com/NiaoBlush/weibo-ip-location/issues)
 
 ## 功能描述
+
 + 用于展示微博用户的ip属地
 + ![ip属地](https://github.com/NiaoBlush/weibo-ip-location/blob/master/img/img1.png?raw=true)
 + 境外的地址会被标红
@@ -17,22 +18,31 @@
 + 有的(很少)用户返回的ip属地信息会经常变动, 原因未知
 
 ## 其他
+
 渣浪新推出的这个显示ip属地的功能真是实用, 让很多成天阴阳怪气的账号无所遁形.
 
 ## 版本特性
 
+### 1.3.1
+
++ 替换不能再使用的`DOMNodeInserted`为`MutationObserver`
+
 ### 1.3
+
 + 适配m.weibo.com的首页微博
 + 暂未处理m.weibo.com个人首页
 + 修改境内ip显示样式
 
 ### 1.2
+
 + 适配v6版本微博
 
 ### 1.1
+
 + 适配新的字段名
 
 ### 1.0
+
 + 实现基本功能
 
 
