@@ -13,7 +13,7 @@
 // @supportURL          https://github.com/NiaoBlush/weibo-ip-location/issues
 // @match               https://weibo.com/*
 // @match               https://m.weibo.cn/*
-// @require             https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.min.js
+// @require             https://libs.baidu.com/jquery/2.0.3/jquery.min.js
 // @grant               GM.xmlHttpRequest
 // @connect             weibo.com
 // ==/UserScript==
